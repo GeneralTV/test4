@@ -1,0 +1,21 @@
+name: Build DLL
+on: [push]
+jobs:
+  build:
+    runs-on: windows-latest  # Используем Windows-сервер!
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Add MinGW to PATH
+      run: |
+        echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
+        
+    - name: Compile
+      run: |
+        x86_64-w64-mingw32-g++ -shared -o RadmirMod.dll main.cpp -lwininet -static -I/mingw64/include -L/mingw64/lib
+        
+    - uses: actions/upload-artifact@v3
+      with:
+        name: RadmirMod.dll
+        path: RadmirMod.dll
