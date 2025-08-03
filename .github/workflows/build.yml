@@ -1,4 +1,4 @@
-name: Build DLL
+name: Build ASI Mod
 on: [push]
 
 jobs:
@@ -8,16 +8,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up MinGW
+    - name: Setup MinGW
       run: |
         choco install mingw -y
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
         
-    - name: Compile DLL
+    - name: Compile ASI
       run: |
-        x86_64-w64-mingw32-g++ -shared -o RadmirMod.dll main.cpp -lwininet -static -std=c++17 -I/mingw64/include -L/mingw64/lib
+        x86_64-w64-mingw32-g++ -shared -o RadmirMod.asi main.cpp -lwininet -static -std=c++17
         
     - uses: actions/upload-artifact@v4
       with:
-        name: RadmirMod.dll
-        path: RadmirMod.dll
+        name: RadmirMod.asi
+        path: RadmirMod.asi
