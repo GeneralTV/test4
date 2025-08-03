@@ -1,16 +1,27 @@
 #include <windows.h>
 #include <wininet.h>
-#include <filesystem>
+#include <shlwapi.h>
 
 #pragma comment(lib, "wininet.lib")
+#pragma comment(lib, "shlwapi.lib")
 
 const char* GITHUB_INDEX = "https://raw.githubusercontent.com/GeneralTV/Teest/main/index.html";
 const char* GITHUB_JS = "https://raw.githubusercontent.com/GeneralTV/Teest/main/custom.js";
 const char* LOCAL_INDEX = "uiresources\\index.html";
 const char* LOCAL_JS = "uiresources\\assets\\custom.js";
 
+void CreateDirectoryRecursive(const char* path) {
+    char dir[MAX_PATH];
+    strcpy_s(dir, path);
+    for (char* p = strchr(dir + 1, '\\'); p; p = strchr(p + 1, '\\')) {
+        *p = '\0';
+        CreateDirectoryA(dir, NULL);
+        *p = '\\';
+    }
+}
+
 void DownloadFile(const char* url, const char* path) {
-    std::filesystem::create_directories(std::filesystem::path(path).parent_path());
+    CreateDirectoryRecursive(path);
     URLDownloadToFileA(NULL, url, path, 0, NULL);
 }
 
