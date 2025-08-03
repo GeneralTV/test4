@@ -2,89 +2,90 @@
 #include <wininet.h>
 #include <string>
 #include <filesystem>
+#include <shlobj.h>
 
 #pragma comment(lib, "wininet.lib")
+#pragma comment(lib, "shell32.lib")
 
 namespace fs = std::filesystem;
 
-// Конфигурация (замените на свои ссылки)
-const std::string GITHUB_INDEX_URL = "https://raw.githubusercontent.com/yourusername/yourrepo/main/index.html";
-const std::string GITHUB_JS_URL = "https://raw.githubusercontent.com/yourusername/yourrepo/main/custom.js";
+// Конфигурация (ЗАМЕНИТЕ НА СВОИ ССЫЛКИ)
+const std::string GITHUB_INDEX = "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/index.html";
+const std::string GITHUB_JS = "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/custom.js";
 
-const std::string LOCAL_INDEX_PATH = "uiresources\\index.html";
-const std::string LOCAL_JS_PATH = "uiresources\\assets\\custom.js";
+// Пути к файлам в Radmir
+std::string GetGamePath() {
+    char path[MAX_PATH];
+    SHGetFolderPathA(NULL, CSIDL_PROGRAM_FILES, NULL, 0, path);
+    return std::string(path) + "\\Radmir CRMP\\";
+}
 
-// Функция для скачивания файлов
+std::string LOCAL_INDEX = GetGamePath() + "uiresources\\index.html";
+std::string LOCAL_JS = GetGamePath() + "uiresources\\assets\\custom.js";
+
+// Скачивание файла с проверкой
 bool DownloadFile(const std::string& url, const std::string& savePath) {
-    // Создаем все необходимые директории
-    fs::create_directories(fs::path(savePath).parent_path();
-
     HINTERNET hInternet = InternetOpenA("RadmirLoader", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
     if (!hInternet) return false;
 
     HINTERNET hUrl = InternetOpenUrlA(hInternet, url.c_str(), NULL, 0, 
-                                    INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE, 0);
+                                    INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0);
     if (!hUrl) {
         InternetCloseHandle(hInternet);
         return false;
     }
 
-    FILE* fp = fopen(savePath.c_str(), "wb");
-    if (!fp) {
+    // Создаем директории
+    fs::create_directories(fs::path(savePath).parent_path();
+
+    HANDLE hFile = CreateFileA(savePath.c_str(), GENERIC_WRITE, 0, NULL, 
+                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
         InternetCloseHandle(hUrl);
         InternetCloseHandle(hInternet);
         return false;
     }
 
-    char buffer[1024];
-    DWORD bytesRead = 0;
+    DWORD bytesRead;
+    char buffer[8192];
     while (InternetReadFile(hUrl, buffer, sizeof(buffer), &bytesRead) && bytesRead > 0) {
-        fwrite(buffer, 1, bytesRead, fp);
+        DWORD bytesWritten;
+        WriteFile(hFile, buffer, bytesRead, &bytesWritten, NULL);
     }
 
-    fclose(fp);
+    CloseHandle(hFile);
     InternetCloseHandle(hUrl);
     InternetCloseHandle(hInternet);
     return true;
 }
 
-// Функция для удаления файлов
-void CleanupFiles() {
-    try {
-        if (fs::exists(LOCAL_INDEX_PATH)) fs::remove(LOCAL_INDEX_PATH);
-        if (fs::exists(LOCAL_JS_PATH)) fs::remove(LOCAL_JS_PATH);
-    } catch (...) {
-        // Игнорируем ошибки удаления
-    }
+// Удаление файлов
+void CleanFiles() {
+    DeleteFileA(LOCAL_INDEX.c_str());
+    DeleteFileA(LOCAL_JS.c_str());
 }
 
 // Точка входа DLL
-BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD  ul_reason_for_call,
-                      LPVOID lpReserved) {
-    switch (ul_reason_for_call) {
-        case DLL_PROCESS_ATTACH: {
-            // Скачиваем файлы при загрузке
-            DownloadFile(GITHUB_INDEX_URL, LOCAL_INDEX_PATH);
-            DownloadFile(GITHUB_JS_URL, LOCAL_JS_PATH);
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
+    switch (reason) {
+        case DLL_PROCESS_ATTACH:
+            DownloadFile(GITHUB_INDEX, LOCAL_INDEX);
+            DownloadFile(GITHUB_JS, LOCAL_JS);
             break;
-        }
-        case DLL_PROCESS_DETACH: {
-            // Удаляем файлы при выгрузке
-            CleanupFiles();
+            
+        case DLL_PROCESS_DETACH:
+            CleanFiles();
             break;
-        }
     }
     return TRUE;
 }
 
-// Экспортируемая функция для ручной загрузки
-extern "C" __declspec(dllexport) void LoadResources() {
-    DownloadFile(GITHUB_INDEX_URL, LOCAL_INDEX_PATH);
-    DownloadFile(GITHUB_JS_URL, LOCAL_JS_PATH);
+// Экспортируемые функции для ручного управления
+extern "C" __declspec(dllexport) void UpdateFiles() {
+    DownloadFile(GITHUB_INDEX, LOCAL_INDEX);
+    DownloadFile(GITHUB_JS, LOCAL_JS);
 }
 
-// Экспортируемая функция для очистки
-extern "C" __declspec(dllexport) void UnloadResources() {
-    CleanupFiles();
+extern "C" __declspec(dllexport) void RemoveFiles() {
+    CleanFiles();
 }
