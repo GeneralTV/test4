@@ -1,4 +1,5 @@
 name: Build ASI Mod
+
 on: [push]
 
 jobs:
@@ -8,14 +9,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup MinGW
+    - name: Compile
       run: |
-        choco install mingw -y
-        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
-        
-    - name: Compile ASI
-      run: |
-        x86_64-w64-mingw32-g++ -shared -o RadmirMod.asi main.cpp -lwininet -static -std=c++17
+        cl.exe /nologo /LD /FeRadmirMod.asi main.cpp /link /INCREMENTAL:NO user32.lib wininet.lib
         
     - uses: actions/upload-artifact@v4
       with:
