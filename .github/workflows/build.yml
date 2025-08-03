@@ -1,21 +1,24 @@
 name: Build DLL
-on: [push]
+on: [push, workflow_dispatch]
 jobs:
   build:
-    runs-on: windows-latest  # Используем Windows-сервер!
+    runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
-    - name: Add MinGW to PATH
+    - name: Setup MinGW
       run: |
-        echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
+        # Устанавливаем MinGW
+        choco install mingw -y
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
         
-    - name: Compile
+    - name: Compile DLL
       run: |
         x86_64-w64-mingw32-g++ -shared -o RadmirMod.dll main.cpp -lwininet -static -I/mingw64/include -L/mingw64/lib
         
-    - uses: actions/upload-artifact@v3
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: RadmirMod.dll
         path: RadmirMod.dll
