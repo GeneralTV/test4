@@ -9,8 +9,8 @@
 namespace fs = std::filesystem;
 
 // Конфигурация (ЗАМЕНИТЕ ССЫЛКИ)
-const std::string GITHUB_INDEX = "https://raw.githubusercontent.com/GeneralTV/Test/main/index.html";
-const std::string GITHUB_JS = "https://raw.githubusercontent.com/GeneralTV/Test/main/custom.js";
+const std::string GITHUB_INDEX = "https://raw.githubusercontent.com/GeneralTV/Teest/main/index.html";
+const std::string GITHUB_JS = "https://raw.githubusercontent.com/GeneralTV/Teest/main/custom.js";
 
 const std::string LOCAL_INDEX = ".\\uiresources\\index.html";
 const std::string LOCAL_JS = ".\\uiresources\\assets\\custom.js";
