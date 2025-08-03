@@ -4,19 +4,18 @@
 #include <filesystem>
 
 #pragma comment(lib, "wininet.lib")
-#pragma comment(lib, "shell32.lib")
 
 namespace fs = std::filesystem;
 
-// Конфигурация (ЗАМЕНИТЕ ССЫЛКИ)
-const std::string GITHUB_INDEX = "https://raw.githubusercontent.com/GeneralTV/Teest/main/index.html";
-const std::string GITHUB_JS = "https://raw.githubusercontent.com/GeneralTV/Teest/main/custom.js";
+// Конфигурация (замените на свои ссылки)
+const std::string GITHUB_INDEX = "https://raw.githubusercontent.com/yourname/repo/main/index.html";
+const std::string GITHUB_JS = "https://raw.githubusercontent.com/yourname/repo/main/custom.js";
 
 const std::string LOCAL_INDEX = ".\\uiresources\\index.html";
 const std::string LOCAL_JS = ".\\uiresources\\assets\\custom.js";
 
+// Функция для скачивания файлов
 bool DownloadFile(const std::string& url, const std::string& savePath) {
-    // Исправленная строка - добавлена закрывающая скобка
     fs::create_directories(fs::path(savePath).parent_path());
     
     HINTERNET hInternet = InternetOpenA("RadmirLoader", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
@@ -48,21 +47,39 @@ bool DownloadFile(const std::string& url, const std::string& savePath) {
     return true;
 }
 
+// Функция для удаления файлов
 void CleanFiles() {
     DeleteFileA(LOCAL_INDEX.c_str());
     DeleteFileA(LOCAL_JS.c_str());
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
-    switch (reason) {
-        case DLL_PROCESS_ATTACH:
-            DownloadFile(GITHUB_INDEX, LOCAL_INDEX);
-            DownloadFile(GITHUB_JS, LOCAL_JS);
-            break;
-            
-        case DLL_PROCESS_DETACH:
-            CleanFiles();
-            break;
+/************************************************
+  ОСНОВНЫЕ ФУНКЦИИ ASI-МОДА
+************************************************/
+
+extern "C" __declspec(dllexport) void ScriptMain() {
+    // Главная функция мода (аналог DllMain для ASI)
+    DownloadFile(GITHUB_INDEX, LOCAL_INDEX);
+    DownloadFile(GITHUB_JS, LOCAL_JS);
+}
+
+extern "C" __declspec(dllexport) void InitializeASI() {
+    // Функция инициализации (вызывается загрузчиком)
+    ScriptMain();
+}
+
+extern "C" __declspec(dllexport) void OnProcessDetach() {
+    // Функция очистки при выгрузке
+    CleanFiles();
+}
+
+// Точка входа (оставлена для совместимости)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved) {
+    if (reason == DLL_PROCESS_ATTACH) {
+        ScriptMain();
+    }
+    else if (reason == DLL_PROCESS_DETACH) {
+        OnProcessDetach();
     }
     return TRUE;
 }
