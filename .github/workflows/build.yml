@@ -9,9 +9,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      
     - name: Compile
       run: |
-        cl.exe /nologo /LD /FeRadmirMod.asi main.cpp /link /INCREMENTAL:NO user32.lib wininet.lib
+        cl /nologo /LD /FeRadmirMod.asi main.cpp /link user32.lib wininet.lib
         
     - uses: actions/upload-artifact@v4
       with:
