@@ -11,30 +11,30 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4  # Обновленная версия checkout
 
-    - name: Set up MSVC
-      uses: ilammy/msvc-dev-cmd@v1
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Configure CMake
-      run: |
-        mkdir build
-        cd build
-        cmake -G "Visual Studio 16 2019" ..
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Visual Studio 16 2019" ..
 
-    - name: Build
-      run: |
-        cd build
-        cmake --build . --config Release
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release
 
-    - name: Create dist folder
-      run: |
-        mkdir -p dist/uiresources/assets
-        cp build/Release/ResourceLoader.asi dist/
-        cp -r build/uiresources/* dist/uiresources/
+      - name: Create dist folder
+        run: |
+          mkdir -p dist/uiresources/assets
+          cp build/Release/ResourceLoader.asi dist/
+          cp -r build/uiresources/* dist/uiresources/
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ResourceLoader
-        path: dist/
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4  # Используем v4 вместо v2
+        with:
+          name: ResourceLoader
+          path: dist/
