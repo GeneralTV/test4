@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="transparent" content="true">
+    <title>Hassle interfaces</title>
+    
+    <!-- Основной CSS -->
+    <link rel="stylesheet" href="./assets/index.css">
+    
+    <!-- Ваш кастомный JS со стилями -->
+    <script src="./assets/custom.js"></script>
+    
+    <!-- Динамическое применение стилей из вашего JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.yorenovNewHudAssets && window.yorenovNewHudAssets.style) {
+                const styleTag = document.createElement('style');
+                styleTag.textContent = window.yorenovNewHudAssets.style;
+                document.head.appendChild(styleTag);
+            }
+        });
+    </script>
+</head>
+<body>
+    <noscript>
+        <strong>Для работы интерфейса требуется JavaScript.</strong>
+    </noscript>
+    <div id="app"></div>
+    
+    <!-- Основной скрипт (если нужен) -->
+    <script type="module" src="./assets/index.js"></script>
+</body>
+</html>
