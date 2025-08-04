@@ -2,41 +2,39 @@ name: Build ASI Plugin
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup Visual Studio 2019
-        uses: microsoft/setup-msbuild@v1
-        with:
-          vs-version: '16.2019'  # Указываем версию Visual Studio 2019
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Configure CMake
-        run: |
-          mkdir build
-          cd build
-          cmake -G "Visual Studio 16 2019" -A x64 ..
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Build
-        run: |
-          cd build
-          cmake --build . --config Release
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release
 
-      - name: Create dist folder
-        run: |
-          mkdir -p dist/uiresources/assets
-          cp build/Release/ResourceLoader.asi dist/
-          cp -r build/uiresources/* dist/uiresources/
+    - name: Create dist folder
+      run: |
+        mkdir -p dist/uiresources/assets
+        cp build/Release/ResourceLoader.asi dist/ || cp build/ResourceLoader.asi dist/
+        cp -r uiresources/* dist/uiresources/
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ResourceLoader
-          path: dist/
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ResourceLoader
+        path: dist/
