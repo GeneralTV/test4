@@ -11,16 +11,18 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4  # Обновленная версия checkout
+      - uses: actions/checkout@v4
 
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup Visual Studio 2019
+        uses: microsoft/setup-msbuild@v1
+        with:
+          vs-version: '16.2019'  # Указываем версию Visual Studio 2019
 
       - name: Configure CMake
         run: |
           mkdir build
           cd build
-          cmake -G "Visual Studio 16 2019" ..
+          cmake -G "Visual Studio 16 2019" -A x64 ..
 
       - name: Build
         run: |
@@ -34,7 +36,7 @@ jobs:
           cp -r build/uiresources/* dist/uiresources/
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4  # Используем v4 вместо v2
+        uses: actions/upload-artifact@v4
         with:
           name: ResourceLoader
           path: dist/
