@@ -16,16 +16,25 @@ jobs:
     - name: Set up MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Build ASI
+    - name: Configure CMake
       run: |
         mkdir build
         cd build
         cmake -G "Visual Studio 16 2019" ..
+
+    - name: Build
+      run: |
+        cd build
         cmake --build . --config Release
-        cp Release/ResourceLoader.asi ../dist/
+
+    - name: Create dist folder
+      run: |
+        mkdir -p dist/uiresources/assets
+        cp build/Release/ResourceLoader.asi dist/
+        cp -r build/uiresources/* dist/uiresources/
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ResourceLoader.asi
-        path: dist/ResourceLoader.asi
+        name: ResourceLoader
+        path: dist/
