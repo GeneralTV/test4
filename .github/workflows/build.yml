@@ -25,12 +25,12 @@ jobs:
     - name: Build
       run: |
         cd build
-        cmake --build . --config Release
+        cmake --build .
 
     - name: Create dist folder
       run: |
         mkdir -p dist/uiresources/assets
-        cp build/Release/ResourceLoader.asi dist/ || cp build/ResourceLoader.asi dist/
+        cp build/ResourceLoader.asi dist/
         cp -r uiresources/* dist/uiresources/
 
     - name: Upload Artifact
